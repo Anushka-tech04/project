@@ -47,13 +47,15 @@ export async function lookupHash(
   hash: string
 ): Promise<{ success: true; data: MalwareHashInfo } | { success: false; error: string }> {
   try {
-    const formData = new FormData();
-    formData.append('query', 'search_hash');
-    formData.append('hash', hash);
-
     const response = await fetch('https://threatfox.abuse.ch/api/v1/', {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: 'search_hash',
+        hash: hash,
+      }),
     });
 
     if (!response.ok) {
