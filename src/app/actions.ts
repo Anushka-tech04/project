@@ -47,19 +47,17 @@ export async function lookupHash(
   hash: string
 ): Promise<{ success: true; data: MalwareHashInfo } | { success: false; error: string }> {
   try {
-    const response = await fetch('https://threatfox.abuse.ch/api/v1/', {
+    const formData = new FormData();
+    formData.append('query', 'get_info');
+    formData.append('hash', hash);
+
+    const response = await fetch('https://mb-api.abuse.ch/api/v1/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: 'search_hash',
-        hash: hash,
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
-      return { success: false, error: 'Failed to fetch hash information from ThreatFox API.' };
+      return { success: false, error: 'Failed to fetch hash information from MalwareBazaar API.' };
     }
 
     const hashInfo: MalwareHashInfo = await response.json();
