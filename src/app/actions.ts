@@ -47,20 +47,29 @@ export async function lookupHash(
   hash: string
 ): Promise<{ success: true; data: MalwareHashInfo } | { success: false; error: string }> {
   try {
-    const formData = new FormData();
-    formData.append('query', 'get_info');
-    formData.append('hash', hash);
+    const apiKey = process.env.VIRUSTOTAL_API_KEY;
+    if (!apiKey) {
+      return { success: false, error: 'VirusTotal API key is not configured.' };
+    }
 
-    const response = await fetch('https://mb-api.abuse.ch/api/v1/', {
-      method: 'POST',
-      body: formData,
+    const response = await fetch(`https://www.virustotal.com/api/v3/files/${hash}`, {
+      headers: {
+        'x-apikey': apiKey,
+      },
     });
+    
+    if (response.status === 404) {
+        return { success: true, data: { query_status: 'hash_not_found' } };
+    }
 
     if (!response.ok) {
-      return { success: false, error: 'Failed to fetch hash information from MalwareBazaar API.' };
+      const errorData = await response.json();
+      console.error('VirusTotal API Error:', errorData);
+      return { success: false, error: `Failed to fetch hash information from VirusTotal API. Status: ${response.status}` };
     }
 
     const hashInfo: MalwareHashInfo = await response.json();
+    hashInfo.query_status = 'ok';
     return { success: true, data: hashInfo };
   } catch (error) {
     console.error('Hash Lookup Error:', error);

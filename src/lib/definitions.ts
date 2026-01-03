@@ -21,17 +21,29 @@ export type IpLookupResult = {
 };
 
 export interface MalwareHashInfo {
-  query_status: 'ok' | 'hash_not_found' | 'no_results' | 'illegal_hash';
-  data?: Array<{
-    sha256_hash: string;
-    sha1_hash: string;
-    md5_hash: string;
-    first_seen: string | null;
-    last_seen: string | null;
-    signature: string | null;
-    tags: string[] | null;
-    threat_type: string | null;
-    file_type: string | null;
-    reporter: string;
-  }>;
+  query_status: 'ok' | 'hash_not_found';
+  data?: {
+    attributes: {
+      meaningful_name: string | null;
+      last_analysis_stats: {
+        malicious: number;
+        suspicious: number;
+        undetected: number;
+        harmless: number;
+        timeout: number;
+      };
+      last_analysis_date: number | null;
+      first_submission_date: number | null;
+      tags: string[] | null;
+      type_description: string | null;
+      reputation: number;
+      md5: string;
+      sha1: string;
+      sha256: string;
+    };
+  };
+  error?: {
+    code: string;
+    message: string;
+  }
 }
